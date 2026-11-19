@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="HRLM — Human Rhythm Life Movement. Drop 01: Sleeveless, Tee, Long Sleeve, Hoodie.">
+<title>HRLM Rack</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,400..900;1,62..125,400..900&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+/* Layout: a single clothes rail in a quiet showroom. Overview = all pieces hanging; picking one pulls it forward while the rail blurs behind. Single light look by choice. */
+:root{
+  color-scheme:light;
+  --room:#EEEDE9;
+  --room-2:#E3E2DD;
+  --ink:#121212;
+  --mute:#7A7975;
+  --line:#D3D2CC;
+  --rail:#8C8B86;
+  --accent:#C2412F;
+  --f-ui:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --f-jp:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{background:var(--room)}
+body{color:var(--ink);font-family:var(--f-ui),var(--f-jp);font-size:13px;line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.g{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.lbl{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase}
+
+/* header */
+header{position:relative;z-index:10}
+.hd{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:64px}
+.logo{display:block;height:20px;width:auto;color:var(--ink)}
+.hd .mid{text-align:center;color:var(--mute)}
+.hd .cart{justify-self:end;border:0;background:none;padding:8px 0}
+
+/* stage */
+.stage{position:relative;height:clamp(600px,calc(100svh - 64px),920px);overflow:hidden;background:radial-gradient(70% 60% at 50% 45%,#F7F6F3,var(--room) 70%)}
+.floor{position:absolute;left:0;right:0;bottom:0;height:22%;background:linear-gradient(var(--room),var(--room-2));border-top:1px solid rgba(0,0,0,.04)}
+
+/* rack */
+.rack{position:absolute;inset:0;transition:filter .6s var(--ease),opacity .6s var(--ease),transform .6s var(--ease)}
+.focus .rack{filter:blur(12px);opacity:.55;transform:scale(.96);pointer-events:none}
+.tabs{position:absolute;top:14px;left:0;right:0;display:flex;justify-content:center;gap:4px;flex-wrap:wrap;z-index:2}
+.tabs button{border:0;background:none;padding:7px 12px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.tabs button:hover{color:var(--ink)}
+.tabs button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.tabs sup{font-size:9px;margin-left:3px;opacity:.7}
+.rail{position:absolute;left:3%;right:3%;top:104px;height:3px;border-radius:2px;background:linear-gradient(var(--rail),#B9B8B2)}
+.rail::before,.rail::after{content:"";position:absolute;top:-1px;width:3px;height:calc(100svh);max-height:820px;background:linear-gradient(var(--rail),transparent 85%)}
+.rail::before{left:0}.rail::after{right:0}
+.rows{position:absolute;left:0;right:0;top:104px;bottom:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;scroll-snap-type:x proximity;cursor:grab;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.rows.dragging{cursor:grabbing;scroll-snap-type:none}
+.rows.dragging .piece{pointer-events:none}
+.rows::-webkit-scrollbar{display:none}
+.row{display:flex;justify-content:flex-start;gap:0;width:max-content;padding-inline:calc(50vw - clamp(190px,21vw,310px) / 2)}
+.row.fade{animation:fadeIn .45s var(--ease)}
+@keyframes fadeIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}
+.piece{position:relative;flex:0 0 auto;width:clamp(190px,21vw,310px);margin-inline:calc(clamp(190px,21vw,310px) * -.09);border:0;background:none;padding:0;scroll-snap-align:center;display:flex;flex-direction:column;align-items:center}
+.piece:hover{z-index:2}
+.hang{display:block;width:100%;margin-top:calc(clamp(190px,21vw,310px) * -.012);transform-origin:50% 1%;animation:sway 5.5s ease-in-out infinite;animation-delay:calc(var(--i) * -.9s);transition:transform .5s var(--ease)}
+.hang img{display:block;width:100%;height:auto;filter:drop-shadow(0 18px 18px rgba(0,0,0,.12));transition:transform .45s var(--ease);-webkit-user-drag:none;user-select:none}
+.piece:hover .hang img,.piece:focus-visible .hang img{transform:translateY(-6px) scale(1.04)}
+.piece:hover .hang{animation-duration:2.2s}
+@keyframes sway{0%,100%{transform:rotate(-1.4deg)}50%{transform:rotate(1.4deg)}}
+.tagline{margin-top:6px;text-align:center;opacity:0;transform:translateY(-4px);transition:opacity .3s,transform .3s;white-space:nowrap}
+.piece:hover .tagline,.piece:focus-visible .tagline,.piece.mid .tagline{opacity:1;transform:none}
+.tagline b{display:block;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.tagline span{font-size:11px;color:var(--mute);font-variant-numeric:tabular-nums}
+.new{position:absolute;top:24%;right:22%;z-index:1;background:var(--accent);color:#fff;font-size:9px;font-weight:800;letter-spacing:.12em;padding:4px 7px;border-radius:999px;pointer-events:none}
+.rnav{position:absolute;top:44%;z-index:3;width:46px;height:46px;border-radius:50%;border:0;background:rgba(255,255,255,.75);box-shadow:0 4px 14px rgba(0,0,0,.08);font-size:20px;display:grid;place-items:center;transition:opacity .2s,transform .15s}
+.rnav:hover{transform:scale(1.06)}
+.rnav:disabled{opacity:0;pointer-events:none}
+.rnav.l{left:max(16px,env(safe-area-inset-left,0px))}.rnav.r{right:max(16px,env(safe-area-inset-right,0px))}
+.hint{position:absolute;left:0;right:0;bottom:5%;display:grid;justify-items:center;gap:10px;color:var(--mute);transition:opacity .4s}
+.hint .jp{font-family:var(--f-jp);font-size:12px;letter-spacing:.04em}
+.track{width:min(220px,50vw);height:2px;background:var(--line);border-radius:2px;position:relative;overflow:hidden}
+.track i{position:absolute;top:0;bottom:0;left:0;background:var(--ink);border-radius:2px;width:30%}
+.focus .hint,.focus .rnav,.focus .tabs{opacity:0;pointer-events:none}
+
+/* detail */
+.detail{position:absolute;inset:0;display:grid;grid-template-columns:minmax(48px,1fr) minmax(0,auto) minmax(48px,1fr);align-items:center;z-index:5}
+.detail .center{grid-column:2;display:flex;flex-direction:column;align-items:center;gap:14px;padding-top:8px}
+.big{position:relative;height:min(54svh,540px);aspect-ratio:820/920;max-width:86vw}
+.big img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 30px 30px rgba(0,0,0,.16));transform-origin:0 0}
+.info{width:min(380px,86vw);display:grid;gap:12px;text-align:center;justify-items:center}
+.info h1{margin:0;font-size:15px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
+.info .sub{display:flex;gap:10px;align-items:center;justify-content:center;color:var(--mute);font-variant-numeric:tabular-nums}
+.info .sub b{color:var(--ink);font-weight:700}
+.swatches{display:flex;gap:10px;justify-content:center;align-items:center}
+.swatches button{width:24px;height:24px;border-radius:50%;border:0;padding:0;background:var(--c);box-shadow:inset 0 0 0 1px rgba(0,0,0,.15)}
+.swatches button[aria-pressed="true"]{box-shadow:inset 0 0 0 1px rgba(0,0,0,.15),0 0 0 2px var(--room),0 0 0 3.5px var(--ink)}
+.status{font-size:10px;font-weight:800;letter-spacing:.12em;padding:4px 8px;border-radius:999px;background:var(--ink);color:#fff}
+.status.soon{background:transparent;color:var(--mute);box-shadow:inset 0 0 0 1px var(--line)}
+.sizes{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.sizes input{position:absolute;opacity:0;pointer-events:none}
+.sizes label{min-width:44px;padding:8px 10px;border:1px solid var(--line);border-radius:999px;font-weight:700;font-size:12px;cursor:pointer;background:rgba(255,255,255,.6)}
+.sizes input:checked+label{background:var(--ink);border-color:var(--ink);color:#fff}
+.sizes input:disabled+label{opacity:.4;cursor:not-allowed}
+.sizes input:focus-visible+label{outline:2px solid var(--ink);outline-offset:2px}
+.act{display:flex;gap:8px;justify-content:center;width:100%}
+.btn{border:0;border-radius:999px;background:var(--ink);color:#fff;font-weight:700;font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:13px 22px;flex:1;transition:transform .15s}
+.btn:hover{transform:scale(1.02)}
+.btn:disabled{background:var(--line);color:var(--mute);transform:none;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink);flex:0 0 auto}
+.added{font-family:var(--f-jp);font-size:12px;color:var(--accent);min-height:1.2em;margin:-4px 0 0}
+.nav{border:0;background:none;width:48px;height:48px;border-radius:50%;display:grid;place-items:center;justify-self:center;font-size:22px;transition:background .2s}
+.nav:hover{background:rgba(0,0,0,.06)}
+.close{position:absolute;top:18px;right:max(18px,env(safe-area-inset-right,0px));border:0;background:none;display:flex;align-items:center;gap:8px;padding:8px}
+.close span{font-size:22px;line-height:1}
+.count{position:absolute;top:18px;left:max(18px,env(safe-area-inset-left,0px));color:var(--mute);font-variant-numeric:tabular-nums}
+.chart{width:100%;font-size:12px}
+.chart summary{cursor:pointer;list-style:none;color:var(--mute);text-decoration:underline;text-underline-offset:3px}
+.chart table{margin:8px auto 0;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.chart th,.chart td{padding:4px 10px;border-bottom:1px solid var(--line)}
+.chart th{font-weight:600;color:var(--mute);font-size:11px}
+
+/* section heads */
+.sec{max-width:1240px;margin:0 auto;padding-block:clamp(56px,9vw,112px) 0}
+.sec-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:clamp(20px,3vw,36px)}
+.sec-head h2{margin:0;font-style:italic;font-weight:900;font-stretch:118%;font-size:clamp(40px,7vw,96px);line-height:.88;letter-spacing:-.035em;text-transform:uppercase}
+.sec-head h2 small{display:block;font-style:normal;font-weight:600;font-stretch:100%;font-size:11px;letter-spacing:.16em;color:var(--mute);margin-bottom:12px}
+.sec-head p{margin:0;max-width:26em;font-family:var(--f-jp);color:#4a4a47;font-size:13px}
+.speed{display:inline-flex;flex-direction:column;gap:.09em;margin-left:.08em;vertical-align:.08em}
+.speed b{display:block;height:.085em;background:currentColor;transform:skewX(-24deg)}
+.speed b:nth-child(1){width:.55em}.speed b:nth-child(2){width:.47em}.speed b:nth-child(3){width:.39em}
+
+/* gallery */
+.gal{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));grid-auto-rows:clamp(64px,7.4vw,96px);gap:8px}
+.shot{position:relative;border:0;padding:0;background:var(--room-2);overflow:hidden;cursor:zoom-in;border-radius:2px}
+.shot img,.shot video{width:100%;height:100%;object-fit:cover;display:block;transition:transform .7s var(--ease),filter .4s}
+.shot:hover img,.shot:hover video{transform:scale(1.04)}
+.shot .no{position:absolute;left:10px;bottom:9px;color:#fff;font-size:10px;font-weight:700;letter-spacing:.14em;text-shadow:0 1px 6px rgba(0,0,0,.4);font-variant-numeric:tabular-nums}
+.shot .play{position:absolute;right:10px;top:10px;background:rgba(255,255,255,.85);color:var(--ink);font-size:9px;font-weight:800;letter-spacing:.14em;padding:4px 8px;border-radius:999px}
+.g1{grid-column:1/8;grid-row:1/6}
+.g2{grid-column:8/13;grid-row:1/9}
+.g3{grid-column:1/5;grid-row:6/9}
+.g4{grid-column:5/8;grid-row:6/9}
+.g5{grid-column:1/5;grid-row:9/15}
+.g6{grid-column:5/9;grid-row:9/15}
+.g7{grid-column:9/13;grid-row:9/15}
+.g8{grid-column:1/7;grid-row:15/19}
+.g9{grid-column:7/10;grid-row:15/19}
+.g10{grid-column:10/13;grid-row:15/19}
+.shot.ev img{object-position:50% 70%}
+.shot .tag{position:absolute;left:10px;top:9px;color:#fff;font-size:9px;font-weight:800;letter-spacing:.16em;background:rgba(0,0,0,.45);padding:4px 7px;border-radius:999px;backdrop-filter:blur(4px)}
+.credit{margin:12px 0 0;color:var(--mute);font-size:11px;letter-spacing:.08em}
+.marquee{overflow:hidden;white-space:nowrap;border-block:1px solid var(--line);margin-top:clamp(40px,6vw,72px)}
+.marquee div{display:inline-flex;gap:40px;padding-block:14px;animation:mq 30s linear infinite;font-style:italic;font-weight:900;font-stretch:118%;font-size:clamp(18px,2.4vw,28px);letter-spacing:-.01em;text-transform:uppercase}
+.marquee span{display:inline-flex;align-items:center;gap:40px}
+.marquee span::after{content:"";width:28px;height:2px;background:var(--accent);transform:skewX(-24deg)}
+@keyframes mq{to{transform:translateX(-50%)}}
+
+/* lightbox */
+.lb{position:fixed;inset:0;z-index:60;background:rgba(14,14,13,.94);display:grid;grid-template-columns:64px minmax(0,1fr) 64px;align-items:center;padding:calc(env(safe-area-inset-top,0px) + 56px) max(8px,env(safe-area-inset-right,0px)) max(40px,env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+.lb .stagebox{grid-column:2;height:100%;display:grid;place-items:center;min-height:0}
+.lb img,.lb video{max-width:100%;max-height:100%;object-fit:contain;display:block}
+.lb button{border:0;background:none;color:#fff;cursor:pointer}
+.lb .lnav{font-size:24px;width:48px;height:48px;border-radius:50%;justify-self:center}
+.lb .lnav:hover{background:rgba(255,255,255,.1)}
+.lb .lx{position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);right:max(16px,env(safe-area-inset-right,0px));font-size:28px;width:44px;height:44px}
+.lb .lc{position:absolute;top:calc(env(safe-area-inset-top,0px) + 24px);left:max(20px,env(safe-area-inset-left,0px));color:#aaa;font-size:11px;letter-spacing:.14em;font-variant-numeric:tabular-nums}
+
+/* instagram */
+.ig{max-width:1240px;margin:0 auto;padding-block:clamp(56px,9vw,112px) clamp(48px,7vw,88px)}
+.ig-card{background:#fff;border-radius:4px;padding:clamp(18px,3vw,32px);display:grid;gap:22px}
+.ig-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px}
+.ig-id{display:flex;align-items:center;gap:14px;min-width:0}
+.avatar{width:68px;height:68px;border-radius:50%;background:conic-gradient(from 200deg,#F2B826,#E8432E,#C13584,#5B51D8,#F2B826);display:grid;place-items:center;flex:0 0 auto;position:relative}
+.avatar::before{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--ink);box-shadow:0 0 0 2px #fff}
+.avatar svg{width:46px;height:auto;color:#fff;position:relative;z-index:1}
+.ig-id b{display:block;font-size:16px;font-weight:800}
+.ig-id span{font-family:var(--f-jp);font-size:12px;color:var(--mute)}
+.follow{display:inline-flex;align-items:center;gap:8px;border-radius:999px;background:var(--ink);color:#fff;text-decoration:none;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:12px 20px;transition:transform .15s}
+.follow:hover{transform:scale(1.03)}
+.follow svg{width:16px;height:16px}
+.ig-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
+.post{position:relative;display:block;aspect-ratio:1/1;overflow:hidden;background:var(--room-2)}
+.post img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s var(--ease)}
+.post.tile img{object-fit:contain;padding:6% 10% 0;transform-origin:50% 0}
+.post:hover img{transform:scale(1.05)}
+.post .ov{position:absolute;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.35);opacity:0;transition:opacity .25s;color:#fff}
+.post:hover .ov,.post:focus-visible .ov{opacity:1}
+.post .ov svg{width:28px;height:28px}
+.post .kind{position:absolute;top:8px;right:8px;width:16px;height:16px;color:#fff;filter:drop-shadow(0 1px 3px rgba(0,0,0,.4))}
+.ig-foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;color:var(--mute);font-size:11px;letter-spacing:.1em}
+
+/* info strip */
+.strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;padding-block:40px 56px;max-width:1100px;margin:0 auto;border-top:1px solid var(--line)}
+.strip p{margin:6px 0 0;font-family:var(--f-jp);color:#3a3a38;font-size:13px}
+footer{text-align:center;color:var(--mute);font-size:11px;padding-block:0 32px}
+
+/* cart drawer */
+.scrim{position:fixed;inset:0;z-index:40;background:rgba(20,20,18,.35)}
+.drawer{position:fixed;top:0;right:0;bottom:0;z-index:50;width:min(400px,100%);background:#FAF9F7;display:flex;flex-direction:column;gap:12px;padding:calc(env(safe-area-inset-top,0px) + 16px) max(20px,env(safe-area-inset-right,0px)) max(20px,env(safe-area-inset-bottom,0px)) 20px}
+.drawer .top{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:12px}
+.drawer .x{border:0;background:none;font-size:24px}
+.items{flex:1;overflow-y:auto;min-height:0}
+.item{display:grid;grid-template-columns:56px minmax(0,1fr) auto;gap:12px;align-items:center;padding-block:10px;border-bottom:1px solid var(--line)}
+.item img{width:56px;height:72px;object-fit:contain}
+.item b{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+.item small{color:var(--mute)}
+.item .rm{border:0;background:none;color:var(--mute);text-decoration:underline;font-size:11px;padding:0}
+.empty{padding:40px 0;text-align:center;color:var(--mute);font-family:var(--f-jp)}
+.sum{display:grid;gap:8px;border-top:1px solid var(--ink);padding-top:12px}
+.sum .r{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums}
+.sum .r.t{font-weight:800;font-size:16px}
+.fld input,.fld textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-family:var(--f-jp);font-size:14px;background:#fff}
+.fld textarea{min-height:60px;resize:vertical}
+.howto{background:#EFEEEA;border-radius:8px;padding:12px;font-family:var(--f-jp);font-size:12px}
+.howto pre{white-space:pre-wrap;font-family:ui-monospace,Menlo,monospace;font-size:11px;background:#fff;padding:8px;border-radius:6px;margin:8px 0;user-select:all}
+.howto code{background:#fff;padding:6px 10px;border-radius:6px;user-select:all}
+.toast{color:var(--accent);min-height:1.2em;font-weight:700}
+
+@media (max-width:760px){
+  .gal{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:30vw;grid-auto-flow:row dense}
+  .gal .shot{grid-column:auto;grid-row:span 2}
+  .gal .shot.wide{grid-column:1/-1}
+  .ig-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+
+  .piece{width:64vw;margin-inline:-7vw}
+  .hang{margin-top:-.6vw}
+  .row{padding-inline:18vw}
+  .rnav{display:none}
+  .tabs{gap:0}.tabs button{padding:7px 9px;font-size:10px;letter-spacing:.08em}
+  .detail{grid-template-columns:0 minmax(0,1fr) 0}
+  .nav{position:absolute;top:30%;background:rgba(255,255,255,.7)}
+  .nav.prev{left:8px}.nav.next{right:8px}
+  .big{height:40svh}
+  .strip{grid-template-columns:minmax(0,1fr);gap:18px}
+  .rail::before,.rail::after{display:none}
+}
+@media (prefers-reduced-motion:reduce){.marquee div{animation:none}.hang{animation:none}.rack,.hang,.hang img{transition:none}}
+</style>
+<style>body{margin:0}img{max-width:100%}</style>
+</head>
+<body>
+
+
+<header>
+  <div class="hd g">
+    <svg class="logo" role="img" aria-label="HRLM" viewBox="0 0 2052 336"><path fill="currentColor" fill-rule="evenodd" d="M11.1,313.2C17.2,301.3 27.1,282.3 33.0,271.0C38.9,259.7 48.1,241.9 53.5,231.5C84.0,172.4 110.7,121.0 152.5,41.5C161.5,24.4 169.9,8.4 171.1,5.8L173.4,1.0L244.7,1.0C283.9,1.0 316.0,1.2 316.0,1.5C316.0,2.2 298.0,37.9 288.2,56.5C283.9,64.8 274.2,83.5 266.6,98.3L252.8,125.0L299.2,125.0L345.5,125.0L349.7,116.7C354.8,106.7 366.1,85.2 391.2,37.2L410.2,1.0L481.1,1.0C520.1,1.0 552.0,1.2 552.0,1.5C552.0,2.6 536.0,34.0 515.7,72.5C504.2,94.5 489.4,122.8 482.8,135.5C476.2,148.2 466.4,166.8 461.0,177.0C448.2,201.3 426.0,243.7 402.0,290.0C394.7,304.0 386.5,319.9 383.6,325.2L378.5,335.0L308.7,335.0L238.8,335.0L244.1,325.2C255.4,304.4 304.0,211.2 304.0,210.5C304.0,210.2 282.7,210.0 256.6,210.0L209.2,210.0L208.2,211.2C207.0,212.9 179.6,265.1 159.5,304.2L143.8,335.0L71.8,335.0L-0.1,335.0L11.1,313.2ZM402.0,334.4C402.0,334.1 418.2,302.3 438.1,263.7C458.0,225.1 483.0,176.4 493.8,155.5C526.9,91.0 531.6,82.0 539.4,67.0C543.6,59.0 553.0,40.9 560.2,26.7L573.5,0.9L704.5,1.2L835.5,1.5L848.0,3.9L860.5,6.2L871.5,9.7C883.9,13.7 891.5,17.3 901.1,23.6L907.8,28.0L913.6,34.3L919.5,40.6L923.2,47.5C925.2,51.4 927.5,57.0 928.4,60.0L930.1,65.5L930.1,76.6L930.1,87.6L928.6,94.3C924.2,113.3 913.7,132.2 897.0,151.0L890.5,158.3L880.5,166.3C875.0,170.7 866.9,176.7 862.5,179.6C841.6,193.1 809.0,206.3 781.9,212.0C776.1,213.2 770.7,214.6 770.0,215.0L768.7,215.8L771.8,223.7C773.5,228.0 776.3,235.1 777.9,239.5C779.5,243.9 783.5,254.0 786.8,262.0C792.6,276.2 794.1,280.0 807.3,314.5C810.9,323.9 814.1,332.3 814.5,333.2L815.2,335.0L738.3,335.0L661.3,335.0L657.2,323.8C653.8,314.3 630.7,249.3 625.3,233.7L623.6,228.9L611.2,229.2L598.9,229.5L587.9,251.0C581.8,262.8 572.6,280.6 567.3,290.5C562.1,300.4 554.6,314.5 550.7,321.8L543.7,335.0L472.9,335.0C433.9,335.0 402.0,334.7 402.0,334.4ZM823.6,325.8C826.2,320.7 834.4,304.6 842.0,290.0C849.5,275.4 863.1,249.1 872.0,231.5C881.0,213.9 898.8,179.0 911.8,154.0C924.7,129.0 939.3,100.6 944.2,91.0C949.2,81.4 959.7,61.1 967.6,46.0C975.4,30.9 983.8,14.6 986.1,9.8L990.4,1.0L1061.7,1.0L1133.0,1.0L1133.0,1.6C1133.0,2.0 1128.6,10.9 1123.1,21.4C1117.7,31.9 1109.3,48.1 1104.5,57.5C1099.7,66.8 1090.3,85.1 1083.5,98.0C1069.3,125.2 1043.3,175.8 1023.5,214.3L1009.8,241.2L1010.5,241.8L1011.2,242.5L1097.1,242.8L1183.1,243.1L1170.1,268.3C1163.0,282.2 1152.2,302.7 1146.3,314.0L1135.4,334.5L977.2,334.8L819.0,335.0L823.6,325.8ZM1163.2,334.2C1165.2,329.6 1246.0,172.5 1261.0,144.0C1289.8,89.2 1303.2,63.9 1318.9,34.5C1328.3,16.9 1336.1,2.0 1336.3,1.5L1336.7,0.5L1414.1,0.4C1456.7,0.4 1495.4,0.6 1500.2,0.8L1509.0,1.3L1509.0,81.3L1509.0,161.4L1513.1,157.5C1515.4,155.3 1527.2,143.2 1539.3,130.5C1551.5,117.8 1584.5,83.6 1612.7,54.4L1664.0,1.3L1677.7,0.8C1689.5,0.4 1799.9,0.4 1858.8,0.9L1877.2,1.0L1872.2,10.2C1869.5,15.3 1862.6,28.3 1856.8,39.0C1842.9,64.7 1809.9,126.4 1799.5,146.0C1795.0,154.5 1786.0,171.4 1779.5,183.5C1768.7,203.6 1745.6,247.0 1727.5,281.0C1723.6,288.4 1715.4,303.6 1709.4,314.7L1698.5,335.0L1624.7,335.0L1551.0,335.0L1556.1,324.9C1558.9,319.3 1564.4,308.6 1568.4,301.1C1572.4,293.6 1578.3,282.6 1581.5,276.5C1584.7,270.4 1591.8,257.2 1597.3,247.0C1610.1,223.2 1626.9,191.8 1637.7,171.5C1642.4,162.7 1647.1,153.9 1648.2,152.0L1650.0,148.5L1557.3,241.8L1464.5,335.1L1424.2,335.0L1384.0,335.0L1384.0,334.2C1384.0,333.8 1384.7,319.1 1385.5,301.5C1389.7,209.8 1391.6,161.2 1390.8,162.0C1390.5,162.3 1381.4,179.4 1370.5,200.0C1359.7,220.6 1347.1,244.5 1342.6,253.0C1338.0,261.5 1326.5,283.5 1317.0,301.8L1299.6,335.0L1231.2,335.0L1162.8,335.0L1163.2,334.2ZM1730.0,334.5C1730.0,334.2 1733.6,327.0 1738.1,318.5L1746.2,303.0L1873.1,303.0L2000.0,303.0L2000.0,303.6C2000.0,304.3 1992.3,318.7 1986.8,328.2L1982.9,335.0L1856.5,335.0C1786.9,335.0 1730.0,334.8 1730.0,334.5ZM1758.0,282.3C1758.0,281.8 1760.9,276.3 1764.4,270.0L1770.7,258.5L1897.9,258.2L2025.1,258.0L2018.6,270.2L2012.1,282.5L1885.0,282.8L1758.0,283.0L1758.0,282.3ZM1782.3,236.8C1782.5,236.1 1785.7,230.1 1789.3,223.5L1795.8,211.5L1923.4,211.2C1993.6,211.1 2051.0,211.1 2051.0,211.3C2051.0,211.7 2041.1,230.0 2038.4,234.7L2036.5,238.0L1909.1,238.0L1781.8,238.0L1782.3,236.8ZM733.0,150.6C738.2,149.2 745.8,146.4 749.8,144.5L757.2,141.0L763.9,134.5L770.7,128.0L773.3,123.2L775.8,118.5L777.1,112.2L778.4,106.0L777.1,101.3L775.9,96.5L773.4,93.3C768.1,86.3 758.8,81.9 745.5,80.0L738.5,79.0L704.5,79.0L670.5,79.0L661.3,97.2C656.2,107.3 647.5,124.2 642.0,134.8L631.9,154.1L677.7,153.7L723.5,153.4L733.0,150.6Z"/></svg>
+    <span class="mid lbl">Drop 01</span>
+    <button class="cart lbl" id="openCart">Cart (<span id="cartN">0</span>)</button>
+  </div>
+</header>
+
+<main>
+  <section class="stage" id="stage" aria-label="ラック">
+    <div class="floor" aria-hidden="true"></div>
+    <div class="rack" id="rack">
+      <div class="tabs" id="tabs" role="group" aria-label="カテゴリー"></div>
+      <div class="rail" aria-hidden="true"></div>
+      <div class="rows" id="rows"><div class="row" id="row"></div></div>
+      <button class="rnav l" id="rl" aria-label="左へスライド">←</button>
+      <button class="rnav r" id="rr" aria-label="右へスライド">→</button>
+      <div class="hint"><div class="track" aria-hidden="true"><i id="thumb"></i></div><span class="lbl">Slide the rack — pick one</span><span class="jp">横にスライドして、気になる1着をクリック</span></div>
+    </div>
+
+    <div class="detail" id="detail" hidden>
+      <span class="count lbl" id="pos">01 / 06</span>
+      <button class="close lbl" id="close" aria-label="ラックに戻る">Back to rack <span aria-hidden="true">×</span></button>
+      <button class="nav prev" id="prev" aria-label="前のアイテム">←</button>
+      <div class="center">
+        <div class="big" id="big"><img id="bigImg" alt=""></div>
+        <form class="info" id="buy" novalidate>
+          <h1 id="name">HRLM Sleeveless</h1>
+          <div class="sub"><b id="price">¥4,800</b><span id="color">Black</span><span class="status" id="status">Available</span></div>
+          <div class="swatches" id="swatches" role="group" aria-label="カラー"></div>
+          <div class="sizes" id="sizes" role="radiogroup" aria-label="サイズ"></div>
+          <div class="act">
+            <button class="btn ghost" type="button" id="turn">Back view</button>
+            <button class="btn" type="submit" id="add">Add to cart</button>
+          </div>
+          <p class="added" id="added" role="status"></p>
+          <details class="chart"><summary>Size chart</summary>
+            <table><thead><tr><th>SIZE</th><th>着丈</th><th>身幅</th><th>肩幅</th></tr></thead><tbody id="chart"></tbody></table>
+          </details>
+        </form>
+      </div>
+      <button class="nav next" id="next" aria-label="次のアイテム">→</button>
+    </div>
+  </section>
+
+  <section class="sec g" id="gallery">
+    <div class="sec-head">
+      <h2><small>On the floor — HYROX OSAKA</small>Gallery<span class="speed" aria-hidden="true"><b></b><b></b><b></b></span></h2>
+      <p>HYROX OSAKAに、チームでHRLMを着て出場。走って、担いで、投げて。HRLMはそういう日のための服です。</p>
+    </div>
+    <div class="gal" id="gal"></div>
+    <p class="credit">Photos: HYROX OSAKA</p>
+  </section>
+
+  <div class="marquee" aria-hidden="true"><div id="mq"></div></div>
+
+  <section class="ig g" id="instagram">
+    <div class="sec-head">
+      <h2><small>Follow the rhythm</small>Instagram</h2>
+      <p>新作の情報、撮影の裏側、ランの記録はInstagramで。</p>
+    </div>
+    <div class="ig-card">
+      <div class="ig-top">
+        <div class="ig-id"><span class="avatar" id="avatar"></span><div><b id="igHandle">@hrlm.running</b><span>Human Rhythm Life Movement</span></div></div>
+        <a class="follow" id="igFollow" href="https://www.instagram.com/hrlm.running/" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>Follow</a>
+      </div>
+      <div class="ig-grid" id="igGrid"></div>
+      <div class="ig-foot"><span>LATEST POSTS</span><span id="igHandle2">@hrlm.running</span></div>
+    </div>
+  </section>
+
+  <section class="strip g">
+    <div><span class="lbl">The piece</span><p>胸にHRLMのスピードロゴ。ノースリーブ、Tシャツ、ロンT、フーディーの4型。走る日も、そのまま街へ。</p></div>
+    <div><span class="lbl">Shipping</span><p id="shipText"></p></div>
+    <div><span class="lbl">Contact</span><p>Human Rhythm Life Movement<br>運営:UNMADE株式会社<br>info@unmade.co.jp</p></div>
+  </section>
+</main>
+<footer><svg class="logo" style="height:14px;margin:0 auto 10px" role="img" aria-label="HRLM" viewBox="0 0 2052 336"><path fill="currentColor" fill-rule="evenodd" d="M11.1,313.2C17.2,301.3 27.1,282.3 33.0,271.0C38.9,259.7 48.1,241.9 53.5,231.5C84.0,172.4 110.7,121.0 152.5,41.5C161.5,24.4 169.9,8.4 171.1,5.8L173.4,1.0L244.7,1.0C283.9,1.0 316.0,1.2 316.0,1.5C316.0,2.2 298.0,37.9 288.2,56.5C283.9,64.8 274.2,83.5 266.6,98.3L252.8,125.0L299.2,125.0L345.5,125.0L349.7,116.7C354.8,106.7 366.1,85.2 391.2,37.2L410.2,1.0L481.1,1.0C520.1,1.0 552.0,1.2 552.0,1.5C552.0,2.6 536.0,34.0 515.7,72.5C504.2,94.5 489.4,122.8 482.8,135.5C476.2,148.2 466.4,166.8 461.0,177.0C448.2,201.3 426.0,243.7 402.0,290.0C394.7,304.0 386.5,319.9 383.6,325.2L378.5,335.0L308.7,335.0L238.8,335.0L244.1,325.2C255.4,304.4 304.0,211.2 304.0,210.5C304.0,210.2 282.7,210.0 256.6,210.0L209.2,210.0L208.2,211.2C207.0,212.9 179.6,265.1 159.5,304.2L143.8,335.0L71.8,335.0L-0.1,335.0L11.1,313.2ZM402.0,334.4C402.0,334.1 418.2,302.3 438.1,263.7C458.0,225.1 483.0,176.4 493.8,155.5C526.9,91.0 531.6,82.0 539.4,67.0C543.6,59.0 553.0,40.9 560.2,26.7L573.5,0.9L704.5,1.2L835.5,1.5L848.0,3.9L860.5,6.2L871.5,9.7C883.9,13.7 891.5,17.3 901.1,23.6L907.8,28.0L913.6,34.3L919.5,40.6L923.2,47.5C925.2,51.4 927.5,57.0 928.4,60.0L930.1,65.5L930.1,76.6L930.1,87.6L928.6,94.3C924.2,113.3 913.7,132.2 897.0,151.0L890.5,158.3L880.5,166.3C875.0,170.7 866.9,176.7 862.5,179.6C841.6,193.1 809.0,206.3 781.9,212.0C776.1,213.2 770.7,214.6 770.0,215.0L768.7,215.8L771.8,223.7C773.5,228.0 776.3,235.1 777.9,239.5C779.5,243.9 783.5,254.0 786.8,262.0C792.6,276.2 794.1,280.0 807.3,314.5C810.9,323.9 814.1,332.3 814.5,333.2L815.2,335.0L738.3,335.0L661.3,335.0L657.2,323.8C653.8,314.3 630.7,249.3 625.3,233.7L623.6,228.9L611.2,229.2L598.9,229.5L587.9,251.0C581.8,262.8 572.6,280.6 567.3,290.5C562.1,300.4 554.6,314.5 550.7,321.8L543.7,335.0L472.9,335.0C433.9,335.0 402.0,334.7 402.0,334.4ZM823.6,325.8C826.2,320.7 834.4,304.6 842.0,290.0C849.5,275.4 863.1,249.1 872.0,231.5C881.0,213.9 898.8,179.0 911.8,154.0C924.7,129.0 939.3,100.6 944.2,91.0C949.2,81.4 959.7,61.1 967.6,46.0C975.4,30.9 983.8,14.6 986.1,9.8L990.4,1.0L1061.7,1.0L1133.0,1.0L1133.0,1.6C1133.0,2.0 1128.6,10.9 1123.1,21.4C1117.7,31.9 1109.3,48.1 1104.5,57.5C1099.7,66.8 1090.3,85.1 1083.5,98.0C1069.3,125.2 1043.3,175.8 1023.5,214.3L1009.8,241.2L1010.5,241.8L1011.2,242.5L1097.1,242.8L1183.1,243.1L1170.1,268.3C1163.0,282.2 1152.2,302.7 1146.3,314.0L1135.4,334.5L977.2,334.8L819.0,335.0L823.6,325.8ZM1163.2,334.2C1165.2,329.6 1246.0,172.5 1261.0,144.0C1289.8,89.2 1303.2,63.9 1318.9,34.5C1328.3,16.9 1336.1,2.0 1336.3,1.5L1336.7,0.5L1414.1,0.4C1456.7,0.4 1495.4,0.6 1500.2,0.8L1509.0,1.3L1509.0,81.3L1509.0,161.4L1513.1,157.5C1515.4,155.3 1527.2,143.2 1539.3,130.5C1551.5,117.8 1584.5,83.6 1612.7,54.4L1664.0,1.3L1677.7,0.8C1689.5,0.4 1799.9,0.4 1858.8,0.9L1877.2,1.0L1872.2,10.2C1869.5,15.3 1862.6,28.3 1856.8,39.0C1842.9,64.7 1809.9,126.4 1799.5,146.0C1795.0,154.5 1786.0,171.4 1779.5,183.5C1768.7,203.6 1745.6,247.0 1727.5,281.0C1723.6,288.4 1715.4,303.6 1709.4,314.7L1698.5,335.0L1624.7,335.0L1551.0,335.0L1556.1,324.9C1558.9,319.3 1564.4,308.6 1568.4,301.1C1572.4,293.6 1578.3,282.6 1581.5,276.5C1584.7,270.4 1591.8,257.2 1597.3,247.0C1610.1,223.2 1626.9,191.8 1637.7,171.5C1642.4,162.7 1647.1,153.9 1648.2,152.0L1650.0,148.5L1557.3,241.8L1464.5,335.1L1424.2,335.0L1384.0,335.0L1384.0,334.2C1384.0,333.8 1384.7,319.1 1385.5,301.5C1389.7,209.8 1391.6,161.2 1390.8,162.0C1390.5,162.3 1381.4,179.4 1370.5,200.0C1359.7,220.6 1347.1,244.5 1342.6,253.0C1338.0,261.5 1326.5,283.5 1317.0,301.8L1299.6,335.0L1231.2,335.0L1162.8,335.0L1163.2,334.2ZM1730.0,334.5C1730.0,334.2 1733.6,327.0 1738.1,318.5L1746.2,303.0L1873.1,303.0L2000.0,303.0L2000.0,303.6C2000.0,304.3 1992.3,318.7 1986.8,328.2L1982.9,335.0L1856.5,335.0C1786.9,335.0 1730.0,334.8 1730.0,334.5ZM1758.0,282.3C1758.0,281.8 1760.9,276.3 1764.4,270.0L1770.7,258.5L1897.9,258.2L2025.1,258.0L2018.6,270.2L2012.1,282.5L1885.0,282.8L1758.0,283.0L1758.0,282.3ZM1782.3,236.8C1782.5,236.1 1785.7,230.1 1789.3,223.5L1795.8,211.5L1923.4,211.2C1993.6,211.1 2051.0,211.1 2051.0,211.3C2051.0,211.7 2041.1,230.0 2038.4,234.7L2036.5,238.0L1909.1,238.0L1781.8,238.0L1782.3,236.8ZM733.0,150.6C738.2,149.2 745.8,146.4 749.8,144.5L757.2,141.0L763.9,134.5L770.7,128.0L773.3,123.2L775.8,118.5L777.1,112.2L778.4,106.0L777.1,101.3L775.9,96.5L773.4,93.3C768.1,86.3 758.8,81.9 745.5,80.0L738.5,79.0L704.5,79.0L670.5,79.0L661.3,97.2C656.2,107.3 647.5,124.2 642.0,134.8L631.9,154.1L677.7,153.7L723.5,153.4L733.0,150.6Z"/></svg>© HRLM — Human Rhythm Life Movement</footer>
+
+<div class="lb" id="lb" hidden role="dialog" aria-label="ギャラリー">
+  <span class="lc" id="lbc">01 / 09</span>
+  <button class="lx" id="lbx" aria-label="閉じる">×</button>
+  <button class="lnav" id="lbp" aria-label="前の写真">←</button>
+  <div class="stagebox" id="lbs"></div>
+  <button class="lnav" id="lbn" aria-label="次の写真">→</button>
+</div>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" hidden aria-label="カート">
+  <div class="top"><span class="lbl">Your cart</span><button class="x" id="closeCart" aria-label="カートを閉じる">×</button></div>
+  <div class="items" id="items"></div>
+  <div class="sum">
+    <div class="r"><span>小計</span><span id="sub">¥0</span></div>
+    <div class="r"><span>送料</span><span id="ship">—</span></div>
+    <div class="r t"><span>合計</span><span id="tot">¥0</span></div>
+    <div class="fld"><input id="nm" type="text" autocomplete="name" placeholder="お名前"></div>
+    <div class="fld"><textarea id="addr" placeholder="〒 / 住所 / 電話番号"></textarea></div>
+    <button class="btn" type="button" id="checkout">Checkout</button>
+    <div class="howto" id="howto" hidden>
+      <b>注文内容をコピーして、メールかInstagramのDMで送ってください。お支払い方法をご案内します。</b>
+      <pre id="summary"></pre>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center"><button class="btn" type="button" id="copy" style="flex:0 0 auto">注文内容をコピー</button><code id="mail">info@unmade.co.jp</code></div>
+      <div class="toast" id="toast" role="status"></div>
+    </div>
+  </div>
+</aside>
+
+<script>
+/* ===== 設定(ここを書き換えるだけで反映) ===== */
+const CONFIG = {
+  paymentUrl: "",                 // Stripe / BASE / STORES の決済リンクを入れると Checkout がそこへ飛ぶ
+  email: "info@unmade.co.jp",
+  shipping: 370, freeShipFrom: 2,
+  shipText: "ご注文確認後、5営業日以内に発送。全国一律 ¥370、2枚以上で送料無料。",
+  colors: {   // カラー名と見本色
+    black:   {name: "Black",   hex: "#141414"},
+    bone:    {name: "Bone",    hex: "#ECEBE6"},
+    sunset:  {name: "Sunset",  hex: "#C2412F"},
+    mango:   {name: "Mango",   hex: "#E0AE35"},
+    forest:  {name: "Forest",  hex: "#2F7D52"},
+    pacific: {name: "Pacific", hex: "#2F5DAE"},
+  },
+  // 商品。available に入れたカラーだけカートに入れられる(それ以外は COMING SOON)
+  products: {
+    sleeveless: {name: "Sleeveless",  price: 4800, colors: ["black","bone","sunset","mango","forest","pacific"], available: ["black"],
+                 sizes: [["S",66,48,40],["M",70,51,43],["L",73,54,46],["XL",76,57,49]]},
+    tee:        {name: "Tee",         price: 5500, colors: ["black","bone","sunset"], available: [],
+                 sizes: [["S",67,50,44],["M",70,53,47],["L",73,56,50],["XL",76,59,53]]},
+    long:       {name: "Long Sleeve", price: 6600, colors: ["black","bone","forest"], available: [],
+                 sizes: [["S",67,50,44],["M",70,53,47],["L",73,56,50],["XL",76,59,53]]},
+    hoodie:     {name: "Hoodie",      price: 9900, colors: ["black","bone","mango"], available: [],
+                 sizes: [["S",65,56,52],["M",68,59,55],["L",71,62,58],["XL",74,65,61]]},
+  },
+  isNew: "sleeveless/black",
+  // ラックに掛ける順番(商品/カラー)
+  rack: ["tee/black","hoodie/bone","sleeveless/bone","long/black","sleeveless/sunset","tee/bone","hoodie/black",
+         "sleeveless/black","long/forest","sleeveless/mango","tee/sunset","hoodie/mango","sleeveless/forest","long/bone","sleeveless/pacific"],
+};
+/* ========================================== */
+const $ = id => document.getElementById(id);
+const yen = n => "¥" + n.toLocaleString("ja-JP");
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const PR = CONFIG.products, CO = CONFIG.colors;
+const img = (t, c, side) => `${t}-${c}-${side}.webp`;
+const isAvail = (t, c) => PR[t].available.includes(c);
+
+// tabs
+const CATS = [["all", "All"], ...Object.entries(PR).map(([k, p]) => [k, p.name])];
+let cat = "all", list = [];
+$("tabs").innerHTML = CATS.map(([k, n]) => `<button type="button" data-cat="${k}" aria-pressed="${k === "all"}">${n}</button>`).join("");
+$("tabs").addEventListener("click", e => { const b = e.target.closest("button"); if (!b || b.dataset.cat === cat) return; cat = b.dataset.cat; [...$("tabs").children].forEach(x => x.setAttribute("aria-pressed", x === b)); build(true); });
+
+// rack
+const rows = $("rows"), row = $("row");
+let pieces = [];
+function build(animate){
+  list = CONFIG.rack.map(k => k.split("/")).filter(([t]) => cat === "all" || t === cat);
+  if (cat !== "all") PR[cat].colors.forEach(c => { if (!list.some(([t, cc]) => t === cat && cc === c)) list.push([cat, c]); });
+  row.innerHTML = list.map(([t, c], i) => `
+    <button class="piece" style="--i:${i}" data-i="${i}" aria-label="HRLM ${PR[t].name} ${CO[c].name}${isAvail(t, c) ? "" : "(Coming soon)"}">
+      ${CONFIG.isNew === t + "/" + c ? '<span class="new">NEW</span>' : ""}
+      <span class="hang"><img src="${img(t, c, "front")}" alt="" draggable="false"></span>
+      <span class="tagline"><b>${PR[t].name} — ${CO[c].name}</b><span>${isAvail(t, c) ? yen(PR[t].price) : "Coming soon"}</span></span>
+    </button>`).join("");
+  pieces = [...row.querySelectorAll(".piece")];
+  if (animate && !reduce) { row.classList.remove("fade"); void row.offsetWidth; row.classList.add("fade"); }
+  const start = Math.max(0, list.findIndex(([t, c]) => CONFIG.isNew === t + "/" + c));
+  requestAnimationFrame(() => { centerOn(cat === "all" ? start : Math.floor((list.length - 1) / 2), false); update(); });
+}
+function centerOn(i, smooth = true){
+  const p = pieces[i]; if (!p) return;
+  rows.scrollTo({left: p.offsetLeft + p.offsetWidth / 2 - rows.clientWidth / 2, behavior: smooth && !reduce ? "smooth" : "auto"});
+}
+function midIndex(){
+  const c = rows.scrollLeft + rows.clientWidth / 2; let best = 0, bd = Infinity;
+  pieces.forEach((p, i) => { const d = Math.abs(p.offsetLeft + p.offsetWidth / 2 - c); if (d < bd) { bd = d; best = i; } });
+  return best;
+}
+function update(){
+  const max = rows.scrollWidth - rows.clientWidth;
+  const r = max > 0 ? rows.scrollLeft / max : 0, w = Math.min(1, rows.clientWidth / rows.scrollWidth);
+  $("thumb").style.width = (w * 100) + "%"; $("thumb").style.left = (r * (1 - w) * 100) + "%";
+  $("rl").disabled = rows.scrollLeft < 4; $("rr").disabled = rows.scrollLeft > max - 4;
+  const m = midIndex(); pieces.forEach((p, i) => p.classList.toggle("mid", i === m));
+}
+rows.addEventListener("scroll", () => requestAnimationFrame(update), {passive: true});
+addEventListener("resize", update);
+const step = d => centerOn(Math.min(pieces.length - 1, Math.max(0, midIndex() + d)));
+$("rl").onclick = () => step(-1); $("rr").onclick = () => step(1);
+
+// drag to slide with a mouse (touch and trackpads scroll natively)
+let drag = null, moved = false;
+rows.addEventListener("pointerdown", e => { if (e.pointerType !== "mouse" || e.button !== 0) return; drag = {x: e.clientX, left: rows.scrollLeft, v: 0, t: performance.now(), lx: e.clientX}; moved = false; });
+addEventListener("pointermove", e => {
+  if (!drag) return; const dx = e.clientX - drag.x;
+  if (!moved && Math.abs(dx) > 5) { moved = true; rows.classList.add("dragging"); }
+  if (moved) { rows.scrollLeft = drag.left - dx; const now = performance.now(); drag.v = (e.clientX - drag.lx) / Math.max(1, now - drag.t); drag.t = now; drag.lx = e.clientX; }
+});
+addEventListener("pointerup", () => {
+  if (!drag) return; const v = drag.v; drag = null;
+  if (moved) {
+    rows.classList.remove("dragging");
+    if (!reduce && Math.abs(v) > .2) rows.scrollBy({left: -v * 320, behavior: "smooth"});
+    setTimeout(() => moved = false, 0);
+  }
+});
+// vertical wheel over the rack slides it sideways, until an end is reached
+rows.addEventListener("wheel", e => {
+  if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+  const max = rows.scrollWidth - rows.clientWidth;
+  if ((e.deltaY > 0 && rows.scrollLeft < max - 2) || (e.deltaY < 0 && rows.scrollLeft > 2)) { e.preventDefault(); rows.scrollLeft += e.deltaY; }
+}, {passive: false});
+
+// detail
+$("shipText").textContent = CONFIG.shipText;
+$("mail").textContent = CONFIG.email;
+let cur = -1, side = "front", busy = false, curColor = null;
+const big = $("bigImg");
+function fill(){
+  const [t] = list[cur], c = curColor, p = PR[t], ok = isAvail(t, c);
+  big.src = img(t, c, side); big.alt = `HRLM ${p.name} ${CO[c].name} ${side === "front" ? "前" : "後ろ"}`;
+  $("name").textContent = "HRLM " + p.name;
+  $("color").textContent = CO[c].name;
+  $("price").textContent = yen(p.price);
+  $("status").textContent = ok ? "Available" : "Coming soon"; $("status").classList.toggle("soon", !ok);
+  $("swatches").innerHTML = p.colors.map(k => `<button type="button" data-c="${k}" style="--c:${CO[k].hex}" aria-pressed="${k === c}" aria-label="${CO[k].name}" title="${CO[k].name}"></button>`).join("");
+  const keep = document.querySelector('input[name="size"]:checked')?.value || "M";
+  $("sizes").innerHTML = p.sizes.map(s => `<input type="radio" name="size" id="sz-${s[0]}" value="${s[0]}" ${s[0] === keep ? "checked" : ""} ${ok ? "" : "disabled"}><label for="sz-${s[0]}">${s[0]}</label>`).join("");
+  $("chart").innerHTML = p.sizes.map(s => `<tr><td>${s[0]}</td><td>${s[1]}</td><td>${s[2]}</td><td>${s[3]}</td></tr>`).join("");
+  $("add").disabled = !ok; $("add").textContent = ok ? "Add to cart" : "Coming soon";
+  $("turn").textContent = side === "front" ? "Back view" : "Front view";
+  $("pos").textContent = String(cur + 1).padStart(2, "0") + " / " + String(list.length).padStart(2, "0");
+  $("added").textContent = "";
+}
+$("swatches").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b || busy || b.dataset.c === curColor) return;
+  curColor = b.dataset.c; fill();
+  if (!reduce) big.animate([{opacity: .3, transform: "translateY(6px)"}, {opacity: 1, transform: "none"}], {duration: 300, easing: "ease-out"});
+});
+
+function open(i){
+  if (busy || moved) return; busy = true;
+  cur = i; side = "front"; curColor = list[i][1]; fill();
+  const from = pieces[i].querySelector("img").getBoundingClientRect();
+  $("stage").classList.add("focus"); $("detail").hidden = false;
+  pieces[i].style.visibility = "hidden";
+  const to = big.getBoundingClientRect();
+  if (!reduce && to.width) {
+    big.animate([{transform: `translate(${from.left - to.left}px,${from.top - to.top}px) scale(${from.width / to.width})`}, {transform: "none"}], {duration: 650, easing: "cubic-bezier(.2,.8,.2,1)"});
+    $("buy").animate([{opacity: 0, transform: "translateY(12px)"}, {opacity: 1, transform: "none"}], {duration: 450, delay: 250, easing: "ease-out", fill: "backwards"});
+  }
+  setTimeout(() => { busy = false; $("close").focus({preventScroll: true}); }, reduce ? 0 : 650);
+}
+function close(){
+  if (busy || cur < 0) return; busy = true;
+  const i = cur, target = pieces[i].querySelector("img");
+  centerOn(i, false);
+  const a = big.getBoundingClientRect(), b = target.getBoundingClientRect();
+  const done = () => { $("detail").hidden = true; pieces[i].style.visibility = ""; $("stage").classList.remove("focus"); cur = -1; busy = false; pieces[i].focus({preventScroll: true}); };
+  if (reduce) return done();
+  $("stage").classList.remove("focus");
+  $("buy").animate([{opacity: 1}, {opacity: 0}], {duration: 200, fill: "forwards"});
+  big.src = img(list[i][0], list[i][1], "front");
+  big.animate([{transform: "none"}, {transform: `translate(${b.left - a.left}px,${b.top - a.top}px) scale(${b.width / a.width})`}], {duration: 520, easing: "cubic-bezier(.5,0,.2,1)", fill: "forwards"})
+    .onfinish = e => { e.target.cancel(); $("buy").getAnimations().forEach(x => x.cancel()); done(); };
+}
+function go(d){
+  if (busy || cur < 0) return; busy = true;
+  pieces[cur].style.visibility = "";
+  const n = (cur + d + list.length) % list.length;
+  const out = reduce ? null : big.animate([{transform: "none", opacity: 1}, {transform: `translateX(${-d * 60}px) rotate(${-d * 4}deg)`, opacity: 0}], {duration: 220, easing: "ease-in", fill: "forwards"});
+  const swap = () => {
+    cur = n; side = "front"; curColor = list[n][1]; fill(); pieces[n].style.visibility = "hidden";
+    if (out) out.cancel();
+    if (!reduce) big.animate([{transform: `translateX(${d * 60}px) rotate(${d * 4}deg)`, opacity: 0}, {transform: "none", opacity: 1}], {duration: 380, easing: "cubic-bezier(.2,.8,.2,1)"});
+    busy = false;
+  };
+  out ? out.onfinish = swap : swap();
+}
+function turn(){
+  if (busy || cur < 0) return; busy = true;
+  const flip = () => { side = side === "front" ? "back" : "front"; big.src = img(list[cur][0], curColor, side); $("turn").textContent = side === "front" ? "Back view" : "Front view"; };
+  if (reduce) { flip(); busy = false; return; }
+  big.style.transformOrigin = "50% 0";
+  big.animate([{transform: "scaleX(1)"}, {transform: "scaleX(0.02)"}], {duration: 220, easing: "ease-in", fill: "forwards"}).onfinish = e => {
+    flip(); e.target.cancel();
+    big.animate([{transform: "scaleX(0.02)"}, {transform: "scaleX(1)"}], {duration: 320, easing: "cubic-bezier(.2,.8,.2,1)"}).onfinish = () => { big.style.transformOrigin = ""; busy = false; };
+  };
+}
+row.addEventListener("click", e => { const b = e.target.closest(".piece"); if (b && !moved) open(+b.dataset.i); });
+$("close").onclick = close; $("prev").onclick = () => go(-1); $("next").onclick = () => go(1); $("turn").onclick = turn;
+$("big").addEventListener("click", turn);
+document.addEventListener("keydown", e => {
+  if (!$("drawer").hidden) { if (e.key === "Escape") closeCart(); return; }
+  if (cur < 0) { if (e.target === document.body || rows.contains(e.target)) { if (e.key === "ArrowRight") step(1); if (e.key === "ArrowLeft") step(-1); } return; }
+  if (e.key === "Escape") close(); else if (e.key === "ArrowRight") go(1); else if (e.key === "ArrowLeft") go(-1);
+});
+let sx = null;
+$("big").addEventListener("pointerdown", e => sx = e.clientX);
+$("big").addEventListener("pointerup", e => { if (sx === null) return; const dx = e.clientX - sx; sx = null; if (Math.abs(dx) > 50) { e.stopPropagation(); go(dx < 0 ? 1 : -1); } });
+
+// preload back views
+Object.entries(PR).forEach(([t, p]) => p.colors.forEach(c => { const im = new Image(); im.src = img(t, c, "back"); }));
+
+// cart
+let cart = [];
+try { cart = JSON.parse(localStorage.getItem("hrlm-rack-cart2") || "[]"); } catch(e) {}
+const save = () => { try { localStorage.setItem("hrlm-rack-cart2", JSON.stringify(cart)); } catch(e) {} };
+const pcs = () => cart.reduce((a, c) => a + c.q, 0);
+const totals = () => { const s = cart.reduce((a, c) => a + c.q * PR[c.t].price, 0), sh = pcs() === 0 || pcs() >= CONFIG.freeShipFrom ? 0 : CONFIG.shipping; return {s, sh, t: s + sh}; };
+function summary(){
+  const t = totals();
+  return ["【HRLM 注文】", ...cart.map(c => `${PR[c.t].name} / ${CO[c.c].name} / ${c.s} × ${c.q}枚`), `小計:${yen(t.s)} / 送料:${t.sh ? yen(t.sh) : "無料"}`, `合計:${yen(t.t)}`, `お名前:${$("nm").value || "(未入力)"}`, `配送先:${$("addr").value || "(未入力)"}`].join("\n");
+}
+function render(){
+  cart = cart.filter(c => PR[c.t] && CO[c.c]);
+  $("cartN").textContent = pcs();
+  $("items").innerHTML = cart.length ? cart.map((c, i) => `<div class="item"><img src="${img(c.t, c.c, "front")}" alt=""><div><b>HRLM ${PR[c.t].name}</b><small>${CO[c.c].name} / ${c.s} × ${c.q}</small><br><button class="rm" type="button" data-rm="${i}">削除</button></div><div>${yen(c.q * PR[c.t].price)}</div></div>`).join("") : `<div class="empty">カートは空です</div>`;
+  const t = totals();
+  $("sub").textContent = yen(t.s); $("ship").textContent = pcs() ? (t.sh ? yen(t.sh) : "無料") : "—"; $("tot").textContent = yen(t.t);
+  $("checkout").disabled = !pcs();
+  if (!$("howto").hidden) $("summary").textContent = summary();
+}
+$("items").addEventListener("click", e => { const i = e.target.dataset.rm; if (i === undefined) return; cart.splice(+i, 1); save(); render(); });
+$("buy").addEventListener("submit", e => {
+  e.preventDefault(); if (cur < 0) return;
+  const t = list[cur][0], c = curColor; if (!isAvail(t, c)) return;
+  const s = document.querySelector('input[name="size"]:checked')?.value; if (!s) return;
+  const hit = cart.find(x => x.t === t && x.c === c && x.s === s);
+  hit ? hit.q = Math.min(10, hit.q + 1) : cart.push({t, c, s, q: 1});
+  save(); render(); $("added").textContent = `カートに追加しました(${PR[t].name} / ${CO[c].name} / ${s})`;
+});
+function openCart(){ $("drawer").hidden = false; $("scrim").hidden = false; }
+function closeCart(){ $("drawer").hidden = true; $("scrim").hidden = true; }
+$("openCart").onclick = openCart; $("closeCart").onclick = closeCart; $("scrim").onclick = closeCart;
+$("checkout").onclick = () => { if (!pcs()) return; if (CONFIG.paymentUrl) { location.href = CONFIG.paymentUrl; return; } $("howto").hidden = false; $("summary").textContent = summary(); };
+["nm", "addr"].forEach(id => $(id).addEventListener("input", () => { if (!$("howto").hidden) $("summary").textContent = summary(); }));
+$("copy").onclick = async () => { try { await navigator.clipboard.writeText(summary()); $("toast").textContent = "注文内容をコピーしました"; } catch(e) { $("toast").textContent = "コピーできませんでした。上のテキストを長押しで選択してください。"; } };
+
+
+/* ===== Gallery / Instagram(写真を差し替えるときはここ) ===== */
+const GALLERY = [   // wide:true は横長写真(スマホで横いっぱいに表示)
+  {src:"event-3.jpg", tag:"HYROX OSAKA", ev:true, wide:true},
+  {src:"event-1.jpg", ev:true},
+  {src:"event-4.jpg", ev:true, wide:true},
+  {src:"event-6.jpg", ev:true, wide:true},
+  {src:"hero.mp4", poster:"poster.jpg", video:true, tag:"SUNDAY RUN"},
+  {src:"event-2.jpg", ev:true},
+  {src:"event-5.jpg", ev:true},
+  {src:"event-8.jpg", ev:true, wide:true},
+  {src:"event-7.jpg", ev:true},
+  {src:"run-1.jpg"},
+];
+const INSTAGRAM = {
+  handle: "@hrlm.running",
+  url: "https://www.instagram.com/hrlm.running/",
+  posts: [                                 // 本番は実際の投稿画像とURLに差し替え
+    {src:"event-4.jpg"}, {src:"hoodie-mango-front.webp", bg:"#E9C766", tile:true}, {src:"event-7.jpg", reel:true},
+    {src:"tee-sunset-front.webp", bg:"#D4705F", tile:true}, {src:"event-2.jpg"}, {src:"long-forest-front.webp", bg:"#7FB08F", tile:true},
+  ],
+};
+const MARQUEE = ["Human Rhythm", "Life Movement", "Run your rhythm", "Breathe", "Gratitude", "Drop 01"];
+$("gal").innerHTML = GALLERY.map((g, i) => `<button class="shot g${i+1}${g.ev ? " ev" : ""}${g.wide ? " wide" : ""}${g.video ? " vid" : ""}" type="button" data-g="${i}" aria-label="写真${i+1}を拡大">${g.tag ? `<span class="tag">${g.tag}</span>` : ""}
+  ${g.video ? `<video src="${g.src}" poster="${g.poster}" autoplay muted loop playsinline></video><span class="play">FILM</span>` : `<img src="${g.src}" alt="" loading="lazy">`}
+  <span class="no">${String(i+1).padStart(2,"0")}</span></button>`).join("");
+const mqHtml = MARQUEE.map(t => `<span>${t}</span>`).join("");
+$("mq").innerHTML = mqHtml + mqHtml;
+$("avatar").innerHTML = document.querySelector("header svg.logo").outerHTML;
+$("igHandle").textContent = $("igHandle2").textContent = INSTAGRAM.handle;
+$("igFollow").href = INSTAGRAM.url;
+const igIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>';
+const reelIcon = '<svg class="kind" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+$("igGrid").innerHTML = INSTAGRAM.posts.map(p => `<a class="post${p.tile ? " tile" : ""}" href="${p.url || INSTAGRAM.url}" target="_blank" rel="noopener" style="${p.bg ? `background:${p.bg}` : ""}" aria-label="Instagramの投稿を見る">
+  <img src="${p.src}" alt="" loading="lazy">${p.reel ? reelIcon : ""}<span class="ov">${igIcon}</span></a>`).join("");
+
+// lightbox
+let lbi = -1;
+function lbShow(i){
+  lbi = (i + GALLERY.length) % GALLERY.length; const g = GALLERY[lbi];
+  $("lbs").innerHTML = g.video ? `<video src="${g.src}" poster="${g.poster}" autoplay muted loop playsinline controls></video>` : `<img src="${g.src}" alt="写真${lbi+1}">`;
+  $("lbc").textContent = String(lbi+1).padStart(2,"0") + " / " + String(GALLERY.length).padStart(2,"0");
+  $("lb").hidden = false;
+}
+const lbClose = () => { $("lb").hidden = true; $("lbs").innerHTML = ""; lbi = -1; };
+$("gal").addEventListener("click", e => { const b = e.target.closest(".shot"); if (b) lbShow(+b.dataset.g); });
+$("lbx").onclick = lbClose; $("lbp").onclick = () => lbShow(lbi - 1); $("lbn").onclick = () => lbShow(lbi + 1);
+$("lb").addEventListener("click", e => { if (e.target === $("lb") || e.target === $("lbs")) lbClose(); });
+document.addEventListener("keydown", e => { if (lbi < 0) return; if (e.key === "Escape") lbClose(); if (e.key === "ArrowRight") lbShow(lbi + 1); if (e.key === "ArrowLeft") lbShow(lbi - 1); }, true);
+
+build(false); render();
+</script>
+
+</body>
+</html>
